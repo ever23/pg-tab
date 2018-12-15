@@ -1,0 +1,256 @@
+const assert= require("assert")
+const dbtabla = require("dbtabla")
+const connect = require('../pg-tab.js')
+/*const sqlite3Ok = require("../lib/sqlite3Ok.js")*/
+const pgResult = require("../lib/pgResult")
+const dbRow = require("dbtabla/lib/dbRow")
+const path = require('path')
+function createAndInsert(callback)
+{
+
+    return (new Promise((resolve,reject)=>
+    {
+        const pg= new connect({
+                host     : 'localhost',
+                password:'EVER2310',
+                user     : 'postgres',
+                database :'test_pg_tab'
+            })
+        let test1=pg.tabla('test1')
+        test1.insert(null,"text",12,"text2").then(ok=>
+        {
+            callback(resolve,reject,pg,ok)
+        }).catch(e=>
+        {
+            pg.end()
+            reject(e)
+        })
+
+    }))
+}
+describe("Test de la clase mysql-tab :tabla",()=>
+{
+    it('obtencion del objeto dbtabla',()=>
+    {
+        return (new Promise((resolve,rejec)=>
+        {
+            const pg= new connect(//"pgsql:host=localhost;port=5432;dbname=test_pg_tab;user=postgres;password:EVER2310;"
+            {
+                host     : 'localhost',
+                password:'EVER2310',
+                user     : 'postgres',
+                database :'test_pg_tab'
+            })
+            pg.end()
+            resolve(pg.tabla('test1'))
+
+
+        })).then(test1=>
+        {
+            assert.ok(test1 instanceof dbtabla,"debe retornar un objeto dbtabla")
+        })
+    })
+    it('obtencion del objeto dbtabla async',()=>
+    {
+
+        return (new Promise((resolve,reject)=>
+        {
+            const pg= new connect({
+                host     : 'localhost',
+                password:'EVER2310',
+                user     : 'postgres',
+                database :'test_pg_tab'
+            })
+            pg.query("create table IF NOT EXISTS \"test1\" (\"id\" serial not null ,\"row1\" text default 'ever',\"row2\" int not null,\"row3\" text null,primary key (\"id\"))")
+                .then(ok=>
+                {
+                    pg.tabla('test1',(test1)=>
+                    {
+                        pg.end()
+                        resolve(test1)
+                    },true)
+                }).catch(e=>{
+                    pg.end()
+                    reject(e)
+                })
+
+        })).then(test1=>
+        {
+            assert.ok((test1 instanceof dbtabla),"debe retornar un objeto dbtabla")
+        })
+    })
+    it('dbTabla:insert',()=>
+    {
+        return (new Promise((resolve,reject)=>
+        {
+            const pg= new connect({
+                host     : 'localhost',
+                password:'EVER2310',
+                user     : 'postgres',
+                database :'test_pg_tab'
+            })
+            let test1=pg.tabla('test1')
+            test1.insert(null,"text",12,"text2").then(ok=>
+            {
+                pg.end()
+                resolve(ok)
+            }).catch(e=>
+            {
+                console.log(test1.__lastSql)
+                pg.end()
+                reject(e)
+            })
+
+        })).then(ok=>
+        {
+
+            assert.ok(typeof ok==="object","debe retornar un objeto")
+            assert.equal(ok.$sql,"INSERT INTO \"test1\" (\"row1\",\"row2\",\"row3\") VALUES ('text',12,'text2');")
+
+        })
+    })
+    it('dbTabla:select',()=>
+    {
+        return createAndInsert((resolve,reject,pg,ok)=>
+            {
+
+                let test1=pg.tabla('test1')
+                test1.select("order by id desc").then(d=>
+                    {
+                        pg.end()
+                        resolve(d)
+                    }).catch(e=>
+                    {
+                        pg.end()
+                        reject(e)
+                    })
+            }).then(data=>
+            {
+                assert.ok(data instanceof pgResult,"debe retornar un objeto pgResult")
+                assert.equal(data.$sql,"SELECT \"test1\".* FROM \"test1\"     order by id desc;")
+                assert.ok(data.length>0)
+                assert.ok(data[0] instanceof dbRow,"debe retornar un objeto dbRow")
+                assert.equal(data[0].row1,"text")
+                assert.equal(data[0].row2,12)
+                assert.equal(data[0].row3,"text2")
+
+            })
+
+    })
+    it('dbTabla:update',()=>
+    {
+        let id
+        return createAndInsert((resolve,reject,pg,ok)=>
+            {
+                //console.log(ok)
+                let test1=pg.tabla('test1')
+
+                test1.update({row1:"hola"},{row2:12}).then(d=>
+                    {
+                        pg.end()
+                        resolve(d)
+                    }).catch(e=>
+                    {
+                        pg.end()
+                        reject(e)
+                    })
+            }).then(data=>
+            {
+                assert.ok(typeof data==="object","debe retornar un objeto")
+                assert.equal(data.$sql,"UPDATE \"test1\" SET \"row1\"='hola' WHERE \"row2\"=12;")
+
+            })
+    })
+    it('dbTabla:delete',()=>
+    {
+        let id
+        return createAndInsert((resolve,reject,pg,ok)=>
+            {
+                let test1=pg.tabla('test1')
+
+                test1.delete({row2:12}).then(d=>
+                    {
+                        pg.end()
+                        resolve(d)
+                    }).catch(e=>
+                    {
+                        pg.end()
+                        reject(e)
+                    })
+            }).then(data=>
+            {
+                assert.ok(typeof data==="object","debe retornar un objeto")
+                assert.equal(data.$sql,"DELETE FROM \"test1\" WHERE \"row2\"=12;")
+            })
+
+    })
+    it('load model test3',()=>
+    {
+        return (new Promise((resolve,reject)=>
+        {
+            const pg= new connect({
+                host     : 'localhost',
+                password:'EVER2310',
+                user     : 'postgres',
+                database :'test_pg_tab'
+            })
+            pg.pathModels(path.dirname(__filename)+"/modelo")
+            pg.query("drop table if exists test3;drop table if exists test4;")
+                .then(d=>
+                {
+                    try{
+                        pg.tabla('test3',e=>
+                        {
+                            resolve(e)
+                        },true)
+                    }catch(e)
+                    {
+                        pg.end()
+                        reject(e)
+                    }
+                }).catch(reject)
+        })).then(test3=>
+        {
+            return test3.select().then(d=>
+            {
+                test3.__conection.end()
+                assert.ok(test3 instanceof dbtabla,"debe retornar un objeto dbtabla")
+            })
+
+        })
+    })
+    it('load model test4',()=>
+    {
+        return (new Promise((resolve,rejec)=>
+        {
+            const pg= new connect({
+                host     : 'localhost',
+                password:'EVER2310',
+                user     : 'postgres',
+                database :'test_pg_tab'
+            })
+            pg.pathModels(path.dirname(__filename)+"/modelo")
+
+            try{
+                pg.tabla('test4',e=>
+                    {
+
+                        resolve(e)
+                    },true)
+            }catch(e)
+            {
+                pg.end()
+                reject(e)
+            }
+
+        })).then(test4=>
+        {
+            return test4.select().then(d=>
+            {
+                test4.__conection.end()
+                assert.ok(test4 instanceof dbtabla,"debe retornar un objeto dbtabla")
+            })
+
+        })
+    })
+})
