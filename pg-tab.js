@@ -8,15 +8,20 @@ const {POSTGRESQL_DB,connect}= pgTabla
 class postgreSqlTable extends connect
 {
     /**
-    * @param {object} param - configuracion para mysql
-    * @param {boolean} connect - indica si conectata al instante
+    * @param {object|Client} param - configuracion para mysql o objeto Client de pg
+    * @param {boolean} connect - indica si connectata al instante
     */
     constructor(params,connect=true)
     {
-        super(params,POSTGRESQL_DB)
-        this.conection=new Client(params)
-        if(connect)
-            this.connect()
+        if(params instanceof Client)
+        {
+            super({},POSTGRESQL_DB)
+            this.connection=params
+        }else {
+            this.connection=new Client(params)
+            if(connect)
+                this.connect()
+        }
         this.__escapeChar="\""
         this.__information_schema = "SELECT information_schema.columns.* FROM information_schema.columns WHERE table_name="
         postgreSqlTable.__caheTablas={}
@@ -37,7 +42,7 @@ class postgreSqlTable extends connect
         }
         return  postgreSqlTable.__caheTablas[tabla] = new pgTabla({
             tabla:tabla,
-            conection:this,
+            connection:this,
             callback:t=>typeof callback==="function"?callback(t):null,
             config:{
                 escapeChar:this.__escapeChar,
@@ -51,13 +56,13 @@ class postgreSqlTable extends connect
 
     }
     /**
-    * conecta con la base de datos
-    * @param {function} callback - funcion que se  ejecutara al conectar
+    * connecta con la base de datos
+    * @param {function} callback - funcion que se  ejecutara al connectar
     */
     connect(callback=()=>{})
     {
         //this.__connectCallback=callback
-        this.conection.connect(ok=>{
+        this.connection.connect(ok=>{
             callback(ok)/*
             if(ok)
             {
@@ -87,11 +92,11 @@ class postgreSqlTable extends connect
     {
         return new Promise((resolve,reject)=>
         {
-            let database =this.conection.database
-            this.conection=new Client(this.config)
-            this.conection.database=this.conection.connectionParameters.database=''
+            let database =this.connection.database
+            this.connection=new Client(this.config)
+            this.connection.database=this.connection.connectionParameters.database=''
 
-            this.conection.connect(error=>
+            this.connection.connect(error=>
             {
 
                 if(error)
@@ -104,7 +109,7 @@ class postgreSqlTable extends connect
                         this.query(`use ${database}`)
                             .then(ok2=>
                             {
-                                this.conection.database=this.conection.connectionParameters.database=database
+                                this.connection.database=this.connection.connectionParameters.database=database
                                 resolve(null)
                             }).catch(reject)
                     }).catch(reject)
@@ -126,7 +131,7 @@ class postgreSqlTable extends connect
         {
             try
             {
-                this.conection.query(query,(error,result)=>
+                this.connection.query(query,(error,result)=>
                 {
                     if(error)
                     {
@@ -141,21 +146,13 @@ class postgreSqlTable extends connect
 
         })
     }
-    /**
-    * escapa el texto sql
-    * @param {string} str - texto
-    * @return {string}
-    */
-    __escapeString(str)
-    {
-        return this.conection.escapeLiteral(str)
-    }
+    
     /**
     * termina la coneccion
     */
     end()
     {
-        this.conection.end()
+        this.connection.end()
     }
     /**
     * verificara la existencia de la tabla
@@ -168,7 +165,7 @@ class postgreSqlTable extends connect
     {
         return new Promise((res,rej)=>
         {
-            this.query(`${this.__information_schema}'${table}' and table_catalog='${this.conection.database}'`)
+            this.query(`${this.__information_schema}'${table}' and table_catalog='${this.connection.database}'`)
                 .then(result1=>{
                     if(!this.inModel(table,callback,result1.rows.length==0))
                     {
@@ -204,7 +201,6 @@ class postgreSqlTable extends connect
                 unique:false,//item.COLUMN_KEY == "UNI",
                 defaul:!/nextval\('[\w]+'::regclass\)/i.test(item.column_default)?item.column_default:"",
                 autoincrement:/nextval\('[\w]+'::regclass\)/i.test(item.column_default)
-
             }
 
         }
