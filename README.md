@@ -1,4 +1,4 @@
-# mysql-db
+# pg-tab
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -10,7 +10,7 @@
 - [Introduccion](#introduccion)
 - [Uso](#uso)
 
-## install
+## install 
 
 pg-tab es un  modulo de [Node.js](https://nodejs.org/es/) valido registrado en [npm registry](https://www.npmjs.com/).
 
@@ -29,7 +29,11 @@ Escrito en JavaScript
 
 Para usar este modulo solo es nesesario conocer un poco el api de pg
 los parametros del constructor de postgreSqlTable son los mismos que se usarian 
-en el constructor Client de pg
+en el constructor Client de pg, usando el metodo *`tabla(tabla)`* se obtiene
+un objeto dbTabla que representa a la tabla con el nombre del parametro en la base de datos.
+
+[Mas documentacion sobre dbTabla..](https://github.com/ever23/dbtabla#dbtabla)
+
 ```js
 // file ./index.js
 const pg=require("pg-tab")
@@ -50,7 +54,7 @@ test1.insert(1,"un texto","otro texto")
         console.log(e)
     })
 ```
-en este caso si la tabla test no existe lanzara un error en catch
+En este caso si la tabla test1 no existe lanzara un error en catch
 para resolver esto podemos crear un modelo para 
 la tabla test1 y cargarlo esto ara que se verifique la existencia y 
 si no existe la tabla sea creada e inicializada automaticamente para esto 
@@ -128,6 +132,152 @@ test2.insert(1,"un texto","otro texto")
 test2.miMetodo("hola")
 ```
 
+[Mas documentacion sobre sql-model..](https://github.com/ever23/sql-model#uso)
+
+
+## postgreSqlTable#constructor(config)
+
+Constructor de postgreSqlTable
+
+* `config {object}`: configuracion para pg, tambien se puede pasar un objeto obtenido del constructor Client de pg
+```js
+const pg=require("pg-tab")
+let connect= new pg({
+    host     : 'tu_host',
+    password:'tu_pass',
+    user     : 'tu_user',
+    database :'tu_db'
+})
+```
+```js
+const postgreSqlTable=require("pg-tab")
+const pg=require("pg")
+let db = pg.Client({
+    host     : 'tu_host',
+    password:'tu_pass',
+    user     : 'tu_user',
+    database :'tu_db'
+})
+let connect= new postgreSqlTable(db)
+```
+
+## postgreSqlTable#tabla(tabla,[callback,[verify]])
+Factoriza y retorna un objeto dbTabla que representara a la tabla con el nombre del primer parametro
+
+* `tabla {string}`: Nombre de la tabla en la base de metadatos
+* `callback {function} (opcional)`: Funcion que sera ejecutada cuando se verifique la existencia de la tabla, esta funcion recibira un parametro que sera el objeto dbTabla creado y si la tabla no es encontrada el parametro sera *null*
+* `verify {boolean} (opcional)`: indica  si la verificacion se realizara al instante o se esperara a la primera consulta
+
+## postgreSqlTable#model(tabla)
+Verifica si un modelo existe y lo retorna si no existe retorna *`false`*
+
+* `tabla {string}`: Nombre del modelo
+
+## postgreSqlTable#addModel(model)
+Agrega un modelo
+* `model {sqlModel|object|string}`: Si es un objeto instanceado de sql-model se agregara a la lista de modelos, si es un objeto pero no de sql-model se tomara como los datos para factorizar un modelo deberia tener el formato *`{tabla:String, campos:Array, foreingKey:Array}`* y su es un string deberia ser una clausula sql CREATE TABLE de la cual se factorizara el modelo
+```js
+//ejemplo 1
+const pg=require("pg-tab")
+const model=require("sql-model")
+let connect= new pg({
+    host     : 'tu_host',
+    password:'tu_pass',
+    user     : 'tu_user',
+    database :'tu_db'
+})
+const test2=new model("test2",{
+    campos:[
+        {
+            name:"id",
+            type:"int",
+            primary:true,
+			autoincrement:true
+
+        },
+        {
+            name:"row1",
+            type:"text"
+        },
+        {
+            name:"row2",
+            type:"int",
+        },
+        {
+            name:"row3",
+            type:"date",
+        }
+    ]
+})
+ connect.addModel(test2)
+```
+```js
+//ejemplo 2
+const pg=require("pg-tab")
+let connect= new pg({
+    host     : 'tu_host',
+    password:'tu_pass',
+    user     : 'tu_user',
+    database :'tu_db'
+})
+connect.addModel({
+    tabla:"test2",
+    campos:[
+        {
+            name:"id",
+            type:"int",
+            primary:true,
+			autoincrement:true
+        },
+        {
+            name:"row1",
+            type:"text"
+        },
+        {
+            name:"row2",
+            type:"int",
+        },
+        {
+            name:"row3",
+            type:"date",
+        }
+    ]
+})
+```
+```js
+//ejemplo 3
+const pg=require("pg-tab")
+let connect= new pg({
+    host     : 'tu_host',
+    password:'tu_pass',
+    user     : 'tu_user',
+    database :'tu_db'
+})
+connect.addModel(`CREATE TABLE test2 (
+    id serial,
+    row1 text,
+    row2 int,
+    row3 date,
+    primary key (id)
+)`)
+```
+
+## postgreSqlTable#pathModels(path)
+Cargar todos los modelos existentes en el directorio path  
+* `path {string}`: directorio de modelos
+
+
+## postgreSqlTable#query(sql,[config])
+
+Ejecuta una consulta sql en la base de datos y retorna una promesa
+
+* `sql {string}`: consulta sql
+* `config {object}`: configuracion para la consulta pg
+
+
+## mysqlTable#end()
+
+Termina la coneccion con la base de datos 
 
 [npm-image]: https://img.shields.io/npm/v/pg-tab.svg
 [npm-url]: https://npmjs.org/package/pg-tab

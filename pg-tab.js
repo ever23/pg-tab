@@ -32,12 +32,14 @@ class postgreSqlTable extends connect
     * de la tabla del primer parametro
     * @param {string} tabla - nombre de la tabla en la base de datos
     * @param {function} callback - funcion anomina que se ejecutara cuando se verifique la existencia de la tabla
+	* @param {boolean} verify -
     * @return {dbTabla}
     */
-    tabla(tabla,callback)
+    tabla(tabla,callback,verify=false)
     {
         if(typeof postgreSqlTable.__caheTablas[tabla]!=="undefined")
         {
+			typeof callback==="function"?callback(postgreSqlTable.__caheTablas[tabla]):null
             return postgreSqlTable.__caheTablas[tabla]
         }
         return  postgreSqlTable.__caheTablas[tabla] = new pgTabla({
@@ -52,7 +54,7 @@ class postgreSqlTable extends connect
                 swap_pre:this.__swap_pre,
                 escapeString:e=>this.__escapeString(e)
             }
-        },typeof callback==="function")
+        },typeof callback==="function" && verify)
 
     }
     /**
