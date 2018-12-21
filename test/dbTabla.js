@@ -64,10 +64,18 @@ describe("Test de la clase mysql-tab :tabla",()=>
             pg.query("create table IF NOT EXISTS \"test1\" (\"id\" serial not null ,\"row1\" text default 'ever',\"row2\" int not null,\"row3\" text null,primary key (\"id\"))")
                 .then(ok=>
                 {
-                    pg.tabla('test1',(test1)=>
+                    pg.tabla('test1',(test1,err)=>
                     {
-                        pg.end()
-                        resolve(test1)
+                        if(test1)
+                        {
+                            pg.end()
+                            resolve(test1)
+                        }else
+                        {
+                            pg.end()
+                            reject(err)
+                        }
+                        
                     },true)
                 }).catch(e=>{
                     pg.end()
@@ -90,13 +98,13 @@ describe("Test de la clase mysql-tab :tabla",()=>
                 database :'test_pg_tab'
             })
             let test1=pg.tabla('test1')
+           
             test1.insert(null,"text",12,"text2").then(ok=>
             {
                 pg.end()
                 resolve(ok)
             }).catch(e=>
             {
-                console.log(test1.__lastSql)
                 pg.end()
                 reject(e)
             })
@@ -127,7 +135,7 @@ describe("Test de la clase mysql-tab :tabla",()=>
             }).then(data=>
             {
                 assert.ok(data instanceof pgResult,"debe retornar un objeto pgResult")
-                assert.equal(data.$sql,"SELECT \"test1\".* FROM \"test1\"     order by id desc;")
+                assert.equal(data.$sql,"SELECT \"test1\".* FROM \"test1\" ORDER BY id desc;")
                 assert.ok(data.length>0)
                 assert.ok(data[0] instanceof dbRow,"debe retornar un objeto dbRow")
                 assert.equal(data[0].row1,"text")
@@ -198,16 +206,18 @@ describe("Test de la clase mysql-tab :tabla",()=>
             pg.query("drop table if exists test3;drop table if exists test4;")
                 .then(d=>
                 {
-                    try{
-                        pg.tabla('test3',e=>
-                        {
-                            resolve(e)
-                        },true)
-                    }catch(e)
+                    
+                    pg.tabla('test3',(tab,e)=>
                     {
-                        pg.end()
-                        reject(e)
-                    }
+                        if(tab===null)
+                        {
+                            pg.end()
+                            reject(e)
+                        }
+                        else
+                        resolve(tab)
+                    },true)
+                  
                 }).catch(reject)
         })).then(test3=>
         {
@@ -221,7 +231,7 @@ describe("Test de la clase mysql-tab :tabla",()=>
     })
     it('load model test4',()=>
     {
-        return (new Promise((resolve,rejec)=>
+        return (new Promise((resolve,reject)=>
         {
             const pg= new connect({
                 host     : 'localhost',
@@ -231,20 +241,21 @@ describe("Test de la clase mysql-tab :tabla",()=>
             })
             pg.pathModels(path.dirname(__filename)+"/modelo")
 
-            try{
-                pg.tabla('test4',e=>
-                    {
-
-                        resolve(e)
-                    },true)
-            }catch(e)
+            
+            pg.tabla('test4',(tab,e)=>
             {
-                pg.end()
-                reject(e)
-            }
-
+                
+                if(tab===null)
+                {
+                    pg.end()
+                    reject(e)
+                }
+                else
+                    resolve(tab)
+            },true)
         })).then(test4=>
         {
+            
             return test4.select().then(d=>
             {
                 test4.__connection.end()

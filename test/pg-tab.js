@@ -16,7 +16,7 @@ const connect = require('../pg-tab.js')
         assert.equal(typeof pg.tabla,"function")
         assert.equal(typeof pg.query,"function")
         assert.equal(typeof pg.connect,"function")
-        assert.equal(typeof pg.__escapeString,"function")
+        
         assert.equal(typeof pg.__keysInTable,"function")
         assert.equal(typeof pg.end,"function")
     })

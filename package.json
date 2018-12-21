@@ -1,6 +1,6 @@
 {
   "name": "pg-tab",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "interface de alto nivel para consultas posgresql",
   "main": "index.js",
   "scripts": {
@@ -20,6 +20,6 @@
   },
   "dependencies": {
     "pg": "^7.7.0",
-    "dbtabla":"^0.7.1"
+    "dbtabla":"^0.8.5"
   }
 }

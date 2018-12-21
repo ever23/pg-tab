@@ -3,7 +3,7 @@ const pgTabla=require("./lib/pgtabla")
 const {POSTGRESQL_DB,connect}= pgTabla
 /**
 * mysqlTable
-* crea una coneccion a una base de datos mysql
+* crea una conexion a una base de datos mysql
 */
 class postgreSqlTable extends connect
 {
@@ -18,6 +18,7 @@ class postgreSqlTable extends connect
             super({},POSTGRESQL_DB)
             this.connection=params
         }else {
+            super(params,POSTGRESQL_DB)
             this.connection=new Client(params)
             if(connect)
                 this.connect()
@@ -39,7 +40,7 @@ class postgreSqlTable extends connect
     {
         if(typeof postgreSqlTable.__caheTablas[tabla]!=="undefined")
         {
-			typeof callback==="function"?callback(postgreSqlTable.__caheTablas[tabla]):null
+            typeof callback==="function"?callback(postgreSqlTable.__caheTablas[tabla]):null
             return postgreSqlTable.__caheTablas[tabla]
         }
         return  postgreSqlTable.__caheTablas[tabla] = new pgTabla({
@@ -52,7 +53,7 @@ class postgreSqlTable extends connect
                 ar_aliased_tables:this.__ar_aliased_tables,
                 dbprefix:this.__dbprefix,
                 swap_pre:this.__swap_pre,
-                escapeString:e=>this.__escapeString(e)
+               
             }
         },typeof callback==="function" && verify)
 
@@ -150,7 +151,7 @@ class postgreSqlTable extends connect
     }
     
     /**
-    * termina la coneccion
+    * termina la conexion
     */
     end()
     {
@@ -161,25 +162,33 @@ class postgreSqlTable extends connect
     * en la base de datos y pasa lo metadatos de la misma calback en
     * el segundo parametro
     * @param {string} table - nombre de la tabla
-    * @param {function} callback - funcion a ejecutar cuando se obtengan los metadatos
+    * @return {Promise}
     */
-    __keysInTable(table,callback)
+    __keysInTable(table)
     {
         return new Promise((res,rej)=>
         {
+            
             this.query(`${this.__information_schema}'${table}' and table_catalog='${this.connection.database}'`)
                 .then(result1=>{
-                    if(!this.inModel(table,callback,result1.rows.length==0))
-                    {
-                        if(result1.rows.length==0)
-                            res("la tabla no existe")
-                        this.query(`SELECT information_schema.key_column_usage.* FROM information_schema.key_column_usage WHERE table_name='${table}'`)
-                            .then(resul2=>
+                    this.inModel(table,result1.rows.length==0)
+                        .then(res).catch(e=>
+                        {
+                            if(e===undefined)
                             {
-                                this.__procesingKeys(table,result1.rows,resul2.rows,res)
-                            }).catch(res)
-                    }
-                }).catch(res)
+                                if(result1.rows.length==0)
+                                    rej("la tabla no existe")
+                                this.query(`SELECT information_schema.key_column_usage.* FROM information_schema.key_column_usage WHERE table_name='${table}'`)
+                                    .then(resul2=>
+                                    {
+                                        this.__procesingKeys(table,result1.rows,resul2.rows,res)
+                                    }).catch(rej)
+                            }else
+                            {
+                                rej(e)
+                            }
+                        })
+                }).catch(rej)
         })
 
     }
