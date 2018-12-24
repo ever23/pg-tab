@@ -1,7 +1,6 @@
 const assert= require("assert")
 const dbtabla = require("dbtabla")
 const connect = require('../pg-tab.js')
-/*const sqlite3Ok = require("../lib/sqlite3Ok.js")*/
 const pgResult = require("../lib/pgResult")
 const dbRow = require("dbtabla/lib/dbRow")
 const path = require('path')
@@ -28,7 +27,7 @@ function createAndInsert(callback)
 
     }))
 }
-describe("Test de la clase mysql-tab :tabla",()=>
+describe("Test de la clase pg-tab :tabla",()=>
 {
     it('obtencion del objeto dbtabla',()=>
     {
@@ -221,10 +220,11 @@ describe("Test de la clase mysql-tab :tabla",()=>
                 }).catch(reject)
         })).then(test3=>
         {
+            assert.ok(test3 instanceof dbtabla,"debe retornar un objeto dbtabla")
             return test3.select().then(d=>
             {
                 test3.__connection.end()
-                assert.ok(test3 instanceof dbtabla,"debe retornar un objeto dbtabla")
+                assert.ok(d instanceof Array,"se debe obtener un array")
             })
 
         })
@@ -255,11 +255,11 @@ describe("Test de la clase mysql-tab :tabla",()=>
             },true)
         })).then(test4=>
         {
-            
+            assert.ok(test4 instanceof dbtabla,"debe retornar un objeto dbtabla")
             return test4.select().then(d=>
             {
                 test4.__connection.end()
-                assert.ok(test4 instanceof dbtabla,"debe retornar un objeto dbtabla")
+                assert.ok(d instanceof Array,"se debe obtener un array")
             })
 
         })

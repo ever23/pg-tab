@@ -38,12 +38,12 @@ class postgreSqlTable extends connect
     */
     tabla(tabla,callback,verify=false)
     {
-        if(typeof postgreSqlTable.__caheTablas[tabla]!=="undefined")
+        if(typeof this.__caheTablas[tabla]!=="undefined")
         {
-            typeof callback==="function"?callback(postgreSqlTable.__caheTablas[tabla]):null
-            return postgreSqlTable.__caheTablas[tabla]
+            typeof callback==="function"?callback(this.__caheTablas[tabla]):null
+            return this.__caheTablas[tabla]
         }
-        return  postgreSqlTable.__caheTablas[tabla] = new pgTabla({
+        return  this.__caheTablas[tabla] = new pgTabla({
             tabla:tabla,
             connection:this,
             callback:t=>typeof callback==="function"?callback(t):null,
@@ -53,7 +53,7 @@ class postgreSqlTable extends connect
                 ar_aliased_tables:this.__ar_aliased_tables,
                 dbprefix:this.__dbprefix,
                 swap_pre:this.__swap_pre,
-               
+
             }
         },typeof callback==="function" && verify)
 
@@ -149,7 +149,7 @@ class postgreSqlTable extends connect
 
         })
     }
-    
+
     /**
     * termina la conexion
     */
@@ -168,7 +168,7 @@ class postgreSqlTable extends connect
     {
         return new Promise((res,rej)=>
         {
-            
+
             this.query(`${this.__information_schema}'${table}' and table_catalog='${this.connection.database}'`)
                 .then(result1=>{
                     this.inModel(table,result1.rows.length==0)
@@ -190,7 +190,6 @@ class postgreSqlTable extends connect
                         })
                 }).catch(rej)
         })
-
     }
     /**
     * procesa los metadatos y los pasa a la funcion
