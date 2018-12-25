@@ -274,7 +274,7 @@ Ejecuta una consulta sql en la base de datos y retorna una promesa
 * `config {object}`: configuracion para la consulta pg
 
 
-## mysqlTable#end()
+## postgreSqlTable#end()
 
 Termina la conexion con la base de datos 
 
