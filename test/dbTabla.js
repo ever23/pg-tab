@@ -1,6 +1,6 @@
 const assert= require("assert")
 const dbtabla = require("dbtabla")
-const connect = require('../pg-tab.js')
+const connect = require('../pg-table.js')
 const pgResult = require("../lib/pgResult")
 const dbRow = require("dbtabla/lib/dbRow")
 const path = require('path')
@@ -27,7 +27,7 @@ function createAndInsert(callback)
 
     }))
 }
-describe("Test de la clase pg-tab :tabla",()=>
+describe("Test de la clase pg-table :tabla",()=>
 {
     it('obtencion del objeto dbtabla',()=>
     {

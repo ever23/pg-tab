@@ -1,6 +1,6 @@
 const assert= require("assert")
 const dbtabla = require('dbtabla')
-const connect = require('../pg-tab.js')
+const connect = require('../pg-table.js')
  describe("Test de la clase dbHelpers",()=>
  {
     const pg= new connect(//"pgsql:host=localhost;port=5432;dbname=test_pg_tab;user=postgres;password:EVER2310;"

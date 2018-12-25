@@ -1,6 +1,6 @@
 
- describe("Test de pg-tab",()=>
+ describe("Test de pg-table",()=>
  {
-    require("./pg-tab")
+    require("./pg-table")
     require("./dbTabla")
  })

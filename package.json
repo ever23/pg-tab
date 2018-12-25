@@ -1,11 +1,11 @@
 {
-  "name": "pg-tab",
+  "name": "pg-table",
   "version": "1.0.1",
   "description": "interface de alto nivel para consultas posgresql",
   "main": "index.js",
   "scripts": {
     "test": "mocha ./test/index.js",
-    "lint": "eslint ./pg-tab.js ./lib"
+    "lint": "eslint ./pg-table.js ./lib"
   },
   "keywords": [
     "sql",

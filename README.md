@@ -1,4 +1,4 @@
-# pg-tab
+# pg-table
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -12,16 +12,16 @@
 
 ## install 
 
-pg-tab es un  modulo de [Node.js](https://nodejs.org/es/) valido registrado en [npm registry](https://www.npmjs.com/).
+pg-table es un  modulo de [Node.js](https://nodejs.org/es/) valido registrado en [npm registry](https://www.npmjs.com/).
 
 Para instalar use [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
 ```sh
-$ npm install pg-tab
+$ npm install pg-table
 ```
 ## introduccion
 
-pg-tab es una interface de alto nivel para generar consultas en postgresql
+pg-table es una interface de alto nivel para generar consultas en postgresql
 Escrito en JavaScript
 
 
@@ -36,7 +36,7 @@ un objeto dbTabla que representa a la tabla con el nombre del parametro en la ba
 
 ```js
 // file ./index.js
-const pg=require("pg-tab")
+const pg=require("pg-table")
 let connect= new pg({
     host     : 'tu_host',
     password:'tu_pass',
@@ -109,7 +109,7 @@ Luego en para usarlo
 ```js
 // file ./index.js
 const path=require("path")
-const pg=require("pg-tab")
+const pg=require("pg-table")
 let connect= new pg({
     host     : 'tu_host',
     password:'tu_pass',
@@ -141,7 +141,7 @@ Constructor de postgreSqlTable
 
 * `config {object}`: configuracion para pg, tambien se puede pasar un objeto obtenido del constructor Client de pg
 ```js
-const pg=require("pg-tab")
+const pg=require("pg-table")
 let connect= new pg({
     host     : 'tu_host',
     password:'tu_pass',
@@ -150,7 +150,7 @@ let connect= new pg({
 })
 ```
 ```js
-const postgreSqlTable=require("pg-tab")
+const postgreSqlTable=require("pg-table")
 const pg=require("pg")
 let db = pg.Client({
     host     : 'tu_host',
@@ -178,7 +178,7 @@ Agrega un modelo
 * `model {sqlModel|object|string}`: Si es un objeto instanceado de tabla-model se agregara a la lista de modelos, si es un objeto pero no de tabla-model se tomara como los datos para factorizar un modelo deberia tener el formato *`{tabla:String, campos:Array, foreingKey:Array}`* y su es un string deberia ser una clausula sql CREATE TABLE de la cual se factorizara el modelo
 ```js
 //ejemplo 1
-const pg=require("pg-tab")
+const pg=require("pg-table")
 const model=require("tabla-model")
 let connect= new pg({
     host     : 'tu_host',
@@ -212,7 +212,7 @@ const test2=new model("test2",{
 ```
 ```js
 //ejemplo 2
-const pg=require("pg-tab")
+const pg=require("pg-table")
 let connect= new pg({
     host     : 'tu_host',
     password:'tu_pass',
@@ -245,7 +245,7 @@ connect.addModel({
 ```
 ```js
 //ejemplo 3
-const pg=require("pg-tab")
+const pg=require("pg-table")
 let connect= new pg({
     host     : 'tu_host',
     password:'tu_pass',
@@ -278,9 +278,9 @@ Ejecuta una consulta sql en la base de datos y retorna una promesa
 
 Termina la conexion con la base de datos 
 
-[npm-image]: https://img.shields.io/npm/v/pg-tab.svg
-[npm-url]: https://npmjs.org/package/pg-tab
-[node-version-image]: https://img.shields.io/node/v/pg-tab.svg
+[npm-image]: https://img.shields.io/npm/v/pg-table.svg
+[npm-url]: https://npmjs.org/package/pg-table
+[node-version-image]: https://img.shields.io/node/v/pg-table.svg
 [node-version-url]: https://nodejs.org/en/download/
-[downloads-image]: https://img.shields.io/npm/dm/pg-tab.svg
-[downloads-url]: https://npmjs.org/package/pg-tab
+[downloads-image]: https://img.shields.io/npm/dm/pg-table.svg
+[downloads-url]: https://npmjs.org/package/pg-table
