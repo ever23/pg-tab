@@ -20,6 +20,6 @@
   },
   "dependencies": {
     "pg": "^7.7.0",
-    "dbtabla":"^0.8.6"
+    "dbtabla":"^0.8.7"
   }
 }
